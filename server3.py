@@ -19,7 +19,10 @@
 #  DEALINGS IN THE SOFTWARE.
 
 import csv
-# from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+import pandas as pd
+df = pd.read_csv('forage-jpmc-swe-task-1/test.csv')
+# print('test.csv')
+# from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import http.server
 import json
 import operator
@@ -148,7 +151,8 @@ def order_book(orders, book, stock_name):
 
 def generate_csv():
     """ Generate a CSV of order history. """
-    with open('test.csv', 'wb') as f:
+    with open('forage-jpmc-swe-task-1/test.csv', 'wb') as f:
+        print('This string appears:', f)
         writer = csv.writer(f)
         for t, stock, side, order, size in orders(market()):
             if t > MARKET_OPEN + SIM_LENGTH:
@@ -158,7 +162,7 @@ def generate_csv():
 
 def read_csv():
     """ Read a CSV or order history into a list. """
-    with open('test.csv', 'rt') as f:
+    with open('forage-jpmc-swe-task-1/test.csv', 'rt') as f:
         for time, stock, side, order, size in csv.reader(f):
             yield dateutil.parser.parse(time), stock, side, float(order), int(size)
 
@@ -260,6 +264,7 @@ class App(object):
         self._data_1 = order_book(read_csv(), self._book_1, 'ABC')
         self._data_2 = order_book(read_csv(), self._book_2, 'DEF')
         self._rt_start = datetime.now()
+        print(self._data_1)
         self._sim_start, _, _ = next(self._data_1)
         self.read_10_first_lines()
 
@@ -285,6 +290,7 @@ class App(object):
         for _ in iter(range(10)):
             next(self._data_1)
             next(self._data_2)
+            
 
     @route('/query')
     def handle_query(self, x):
@@ -299,6 +305,7 @@ class App(object):
             self.__init__()
             t1, bids1, asks1 = next(self._current_book_1)
             t2, bids2, asks2 = next(self._current_book_2)
+
         t = t1 if t1 > t2 else t2
         print('Query received @ t%s' % t)
         return [{
@@ -334,7 +341,7 @@ class App(object):
 # Main
 
 if __name__ == '__main__':
-    if not os.path.isfile('test.csv'):
+    if not os.path.isfile('forage-jpmc-swe-task-1/test.csv'):
         print("No data found, generating...")
         generate_csv()
     run(App())
